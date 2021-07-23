@@ -12,9 +12,11 @@
     "test": "jest"
   },
   "dependencies": {
+    "@nuxtjs/axios": "^5.3.6",
+    "aws-amplify": "^4.2.1",
+    "aws-amplify-vue": "^2.1.5",
     "cross-env": "^5.2.0",
-    "nuxt": "^2.4.0",
-    "@nuxtjs/axios": "^5.3.6"
+    "nuxt": "^2.4.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.9",
