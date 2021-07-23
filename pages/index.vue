@@ -3,7 +3,7 @@
     <div>
       <logo />
       <h1 class="title">
-        proyecto_prueba
+        testing amplify
       </h1>
       <h2 class="subtitle">
         mi grandioso proyecto
