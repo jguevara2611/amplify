@@ -1,7 +1,7 @@
 import pkg from './package'
 
 export default {
-  mode: 'universal',
+  ssr: 'true',
 
   /*
   ** Headers of the page
