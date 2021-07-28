@@ -6,7 +6,7 @@ phases:
             nodejs: 10
         commands:
             - echo Installing source NPM dependencies...
-            - sudo npm install -g serverless
+            - npm install serverless -g
             - npm install
 
     build:
