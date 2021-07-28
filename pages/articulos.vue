@@ -3,7 +3,7 @@
     <div>
       <nuxt-link to="/">home</nuxt-link>
       <h1 class="title">
-        ARTICULOS
+        ARTICULOS nuevos
       </h1>
       <img :src="$urlStatic+'/result-call.png'" >
     </div>

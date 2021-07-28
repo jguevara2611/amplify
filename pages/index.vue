@@ -4,7 +4,7 @@
       <nuxt-link to="/articulos">articulos</nuxt-link>
       <logo />
       <h1 class="title">
-        testing amplify
+        testing cicd
       </h1>
       <h2 class="subtitle">
         mi grandioso proyecto
