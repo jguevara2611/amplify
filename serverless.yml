@@ -1,0 +1,196 @@
+service: nuxt-serverless # NOTE: update this with your service name
+
+plugins:
+  - serverless-s3-sync
+  - serverless-apigw-binary
+
+package:
+  # individually: true
+  excludeDevDependencies: true
+  patterns:
+    - '!.nuxt/**'
+    - '!assets/**'
+    - '!components/**'
+    - '!layouts/**'
+    - '!middleware/**'
+    # - '!node_modules/**'
+    - '!pages/**'
+    - '!plugins/**'
+    # - '!src/**'
+    - '!static/**'
+    - '!store/**'
+    - '!test/**'
+    - '!jest.config.js'
+    - '!package-lock.json'
+    - '!package.json'
+    - '.nuxt/dist/server/**'
+    # - handler.js
+    # - nuxt.config.js
+    # - server.js
+  
+provider:
+  name: aws
+  runtime: nodejs10.x
+  stage: dev
+  region: us-east-2
+
+custom:
+  stackId: 123456789
+
+  buckets:
+    ASSETS_BUCKET_NAME: ${self:service}-${self:custom.stackId}-${self:provider.stage}-assets
+    STATIC_BUCKET_NAME: ${self:service}-${self:custom.stackId}-${self:provider.stage}-static
+  s3Sync:
+    - bucketName: ${self:custom.buckets.ASSETS_BUCKET_NAME}
+      localDir: .nuxt/dist/client
+    - bucketName: ${self:custom.buckets.STATIC_BUCKET_NAME}
+      localDir: static
+  apigwBinary:
+    types:
+      - '*/*'
+
+functions:
+  renderer:
+    name: ${self:service}-${self:custom.stackId}-${self:provider.stage}-renderer
+    handler: handler.nuxt
+    memorySize: 1024
+    timeout: 30
+    # environment:
+    #   NODE_ENV: production
+    # package:
+    #   include:
+    #     - .nuxt/dist/server/**
+    #   exclude:
+    #     - .nuxt/**
+    #     # - handler.js
+    #     # - nuxt.config.js
+    #     - README.md
+    #     # - server.js
+    #     - serverless.yml
+    # patterns:
+    #   # - '!.*/**'
+    #   - '!.nuxt/**'
+    #   - '!assets/**'
+    #   - '!components/**'
+    #   - '!layouts/**'
+    #   - '!middleware/**'
+    #   - '!node_modules/**'
+    #   - '!pages/**'
+    #   - '!plugins/**'
+    #   - '!src/**'
+    #   - '!static/**'
+    #   - '!store/**'
+    #   - '!jest.config.js'
+    #   - '!package-lock.json'
+    #   - '!package.json'
+    #   - .nuxt/dist/server/**
+    #   # - handler.js
+    #   # - nuxt.config.js
+    #   # - server.js
+
+    events:
+      - http:
+          path: /
+          method: any
+      - http:
+          path: /{proxy+}
+          method: any
+      - http:
+          path: /_nuxt/{proxy+}
+          method: any
+          integration: http-proxy
+          request:
+            uri: https://${self:custom.buckets.ASSETS_BUCKET_NAME}.s3.${self:provider.region}.amazonaws.com/{proxy}
+            parameters:
+              paths:
+                proxy: true
+      - http:
+          path: /static/{proxy+}
+          method: any
+          integration: http-proxy
+          request:
+            uri: https://${self:custom.buckets.STATIC_BUCKET_NAME}.s3.${self:provider.region}.amazonaws.com/{proxy}
+            parameters:
+              paths:
+                proxy: true
+
+resources:
+  Resources:
+    ClientAssetsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.buckets.ASSETS_BUCKET_NAME}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - HEAD
+                - PUT
+                - POST
+                - DELETE
+              MaxAge: 4000
+              ExposedHeaders:
+                - x-amz-server-side-encryption
+                - x-amz-request-id
+                - x-amz-id-2
+    ClientAssetsBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: ClientAssetsBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement: [
+            {
+              Action: ['s3:GetObject'],
+              Effect: 'Allow',
+              Resource: {
+                Fn::Join: ['', ['arn:aws:s3:::', { Ref: 'ClientAssetsBucket' }, '/*']],
+              },
+              Principal: '*'
+            },
+          ]
+    ClientStaticBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.buckets.STATIC_BUCKET_NAME}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - HEAD
+                - PUT
+                - POST
+                - DELETE
+              MaxAge: 3000
+              ExposedHeaders:
+                - x-amz-server-side-encryption
+                - x-amz-request-id
+                - x-amz-id-2
+    ClientStaticBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: ClientStaticBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement: [
+            {
+              Action: ['s3:GetObject'],
+              Effect: 'Allow',
+              Resource: {
+                Fn::Join: ['', ['arn:aws:s3:::', { Ref: 'ClientStaticBucket' }, '/*']],
+              },
+              Principal: '*'
+            },
+          ]

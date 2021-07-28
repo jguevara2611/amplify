@@ -9,21 +9,24 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "test": "jest"
+    "test": "jest",
+    "deploy": "npm run build && sls deploy"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.3.6",
-    "aws-amplify": "^4.2.1",
-    "aws-amplify-vue": "^2.1.5",
+    "aws-serverless-express": "^3.4.0",
     "cross-env": "^5.2.0",
+    "express": "^4.17.1",
     "nuxt": "^2.4.0"
   },
   "devDependencies": {
-    "nodemon": "^1.18.9",
     "@vue/test-utils": "^1.0.0-beta.27",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^24.1.0",
     "jest": "^24.1.0",
+    "nodemon": "^1.18.9",
+    "serverless-apigw-binary": "^0.4.4",
+    "serverless-s3-sync": "^1.17.1",
     "vue-jest": "^3.0.3"
   }
 }

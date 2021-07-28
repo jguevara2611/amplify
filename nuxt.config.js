@@ -1,22 +1,29 @@
-import pkg from './package'
-
-export default {
+const static_url = 'https://nuxt-serverless-123456789-dev-static.s3.us-east-2.amazonaws.com'
+// const static_url = ''
+let config = {
   ssr: 'true',
+  env: {
+    urlStatic: static_url,
+  },
 
   /*
   ** Headers of the page
   */
   head: {
-    title: pkg.name,
+    title: 'test',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: pkg.description }
+      { hid: 'description', name: 'description', content: 'test desc' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: static_url+'/favicon.ico' }
     ]
   },
+
+  // router: {
+  //   base: `/dev/`
+  // },
 
   /*
   ** Customize the progress-bar color
@@ -33,7 +40,8 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    { src: '@/plugins/amplify.js', ssr: false }
+    // { src: '@/plugins/amplify.js', ssr: false }
+    '@/plugins/staticUrl.js',
   ],
 
   /*
@@ -49,6 +57,9 @@ export default {
   axios: {
     // See https://github.com/nuxt-community/axios-module#options
   },
+  // performance: {
+  //   gzip: false
+  // },
 
   /*
   ** Build configuration
@@ -58,6 +69,12 @@ export default {
     ** You can extend webpack config here
     */
     extend(config, ctx) {
-    }
+    },
+    standalone: true,
+    // publicPath: `/dev/_nuxt/`
+    publicPath: `https://nuxt-serverless-123456789-dev-assets.s3.us-east-2.amazonaws.com/`
+    // publicPath: `/${require('./secrets.json').NODE_ENV}/_nuxt/`
   }
 }
+
+module.exports = config
